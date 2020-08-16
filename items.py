@@ -27,4 +27,4 @@ class ZhaopinSpiderItem(scrapy.Item):
     company_advantage = scrapy.Field()
     company_size = scrapy.Field()
     company_industry_field = scrapy.Field()  # 公司业务领域
-    pass
+

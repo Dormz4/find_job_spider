@@ -16,14 +16,25 @@ class ZhaopinSpiderPipeline(object):
         # res = self.db.insert(item,sql)
         # if res ==0:
         #     print("插入",item,"失败")
-        self.db.cursor.execute('''
-            insert into job_list(`url_job_id`,`job_name`,`salary`,`work_year`,`education`,`company`,`company_advantage`,`company_industry_field`,`company_size`,\
-            `finance_stage`,`company_label`,`city`,`district`,`create_time`) 
-            values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
-        '''%(item['url_job_id'],item['job_name'],item['salary'],item['work_year']\
-             ,item['education'],item['company'],item['company_advantage'],item['company_industry_field'],item['company_size'],item['finance_stage'],\
-             item['company_label'],item['city'],item['district'],item['create_time']))
-        self.db.connect.commit()
+        print(item.keys())
+        if ('job_description' in item.keys()) == False:
+        # if item['job_description'] == None:
+            res = self.db.cursor.execute('''
+                insert into job_list(`url_job_id`,`job_name`,`salary`,`work_year`,`education`,`company`,`company_advantage`,`company_industry_field`,`company_size`,\
+                `finance_stage`,`company_label`,`city`,`district`,`create_time`) 
+                values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
+            '''%(item['url_job_id'],item['job_name'],item['salary'],item['work_year']\
+                 ,item['education'],item['company'],item['company_advantage'],item['company_industry_field'],item['company_size'],item['finance_stage'],\
+                 item['company_label'],item['city'],item['district'],item['create_time']))
+            print("插入职位信息res:",res)
+            self.db.connect.commit()
+        else:
+            print("命中要更新 职位详情 %d"%(item['url_job_id']))
+            res = self.db.cursor.execute('''
+                update job_list set job_description='%s' where url_job_id='%s';
+            '''%(item['job_description'],item['url_job_id']))
+            print("更新职位详情 res为:",res)
+            self.db.connect.commit()
         return item
 
     def __init__(self):

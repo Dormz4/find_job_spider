@@ -4,8 +4,20 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import random
 
+import requests
 from scrapy import signals
+from scrapy.core.downloader.handlers.http11 import TunnelError
+from scrapy.downloadermiddlewares.retry import RetryMiddleware
+from scrapy.utils import defer
+from twisted.internet.error import DNSLookupError, ConnectError, TCPTimedOutError, ConnectionDone, ConnectionLost
+from twisted.web._newclient import ResponseFailed
+
+import settings
+
+
+
 
 
 class ZhaopinSpiderSpiderMiddleware(object):
@@ -30,7 +42,7 @@ class ZhaopinSpiderSpiderMiddleware(object):
     def process_spider_output(self, response, result, spider):
         # Called with the results returned from the Spider, after
         # it has processed the response.
-
+        print("响应")
         # Must return an iterable of Request, dict or Item objects.
         for i in result:
             yield i
@@ -55,11 +67,63 @@ class ZhaopinSpiderSpiderMiddleware(object):
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
+class ZhaopinSpiderRetryMiddleware(RetryMiddleware):
+    # self.EXCEPTIONS_TO_RETRY
+    # XCEPTIONS_TO_RETRY = (TimeoutError, DNSLookupError,
+    #                       ConnectionRefusedError, ConnectionDone, ConnectError,
+    #                       ConnectionLost, TCPTimedOutError, ResponseFailed,
+    #                       IOError, TunnelError)
+
+    def get_proxy(self):
+        return requests.get("http://127.0.0.1:5010/get/").json()
+
+    def delete_proxy(self, proxy):
+        requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
+
+    def process_response(self, request, response, spider):
+        return super().process_response(request, response, spider)
+
+    def process_exception(self, request, exception, spider):
+        a = 10
+        # if isinstance(exception,self.EXCEPTIONS_TO_RETRY):
+        #     proxy =self.get_proxy().get('proxy');
+        #     print("使用%s重新连接"%proxy)
+        #     request.meta['proxy'] = proxy
+        #     return self._retry(request, exception, spider)
+
+        # if isinstance(exception,self.EXCEPTIONS_TO_RETRY) :
+        #     # pre_proxy = request.meta['proxy']
+        #     # self.delete_proxy(pre_proxy)
+        #     proxy =self.get_proxy().get('proxy');
+        #     # proxy = 'http://http-dyn.abuyun.com:9020'
+        #
+        #     print("使用%s重新连接"%proxy)
+        #     request.meta['proxy'] = proxy
+        #     return self._retry(request, exception, spider)
+
+        # if int(exception.args[0].split(':')[2].split(',')[0].split(' ')[1]) == 500:
+        #     if request._url == 'https://www.lagou.com/jobs/positionAjax.json?needAddtionalResult=false':
+        #         # yield
+        #         b =1
+
+
+
 
 class ZhaopinSpiderDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
+
+    # EXCEPTIONS_TO_RETRY = (TimeoutError, DNSLookupError,
+    #                        ConnectionRefusedError, ConnectionDone, ConnectError,
+    #                        ConnectionLost, TCPTimedOutError, ResponseFailed,
+    #                        IOError, TunnelError)
+
+    def get_proxy(self):
+        return requests.get("http://127.0.0.1:5010/get/").json()
+
+    def delete_proxy(self, proxy):
+        requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -71,7 +135,7 @@ class ZhaopinSpiderDownloaderMiddleware(object):
     def process_request(self, request, spider):
         # Called for each request that goes through the downloader
         # middleware.
-
+        a = 10
         # Must either:
         # - return None: continue processing this request
         # - or return a Response object
@@ -82,7 +146,7 @@ class ZhaopinSpiderDownloaderMiddleware(object):
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
-
+        a = 10
         # Must either;
         # - return a Response object
         # - return a Request object
@@ -92,12 +156,47 @@ class ZhaopinSpiderDownloaderMiddleware(object):
     def process_exception(self, request, exception, spider):
         # Called when a download handler or a process_request()
         # (from other downloader middleware) raises an exception.
+        a = 1
+        # if int(exception.args[0].split(':')[2].split(',')[0].split(' ')[1]) == 500:
 
         # Must either:
         # - return None: continue processing this exception
         # - return a Response object: stops process_exception() chain
         # - return a Request object: stops process_exception() chain
-        pass
+        print("下载器",exception)
+        return None
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class ProxyMiddleware(RetryMiddleware):
+
+    def get_proxy(self):
+        return requests.get("http://127.0.0.1:5010/get/").json()
+
+    def delete_proxy(self, proxy):
+        requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
+
+    def process_request(self, request, spider):
+        # if request._url.find('jobs/list')>1:
+        #     pass
+        # else:
+        #     # proxy = random.choice(settings.PROXIES)
+        #     proxy = self.get_proxy().get("proxy")
+        #     print("使用代理:%s"%proxy)
+        #     request.meta['proxy'] = proxy
+
+        # proxy = self.get_proxy().get("proxy")
+        proxy = 'http://127.0.0.1:8888'
+        print("使用代理:%s" % proxy)
+        request.meta['proxy'] = proxy
+
+        pass
+
+    def process_exception(self, request, exception, spider):
+        return super().process_exception(request, exception, spider)
+
+    def process_response(self, request, response, spider):
+        return super().process_response(request, response, spider)
+

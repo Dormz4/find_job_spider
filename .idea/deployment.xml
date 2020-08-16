@@ -2,17 +2,10 @@
 <project version="4">
   <component name="PublishConfigData" autoUpload="On explicit save action" serverName="root@121.37.16.215:22">
     <serverData>
-      <paths name="Copy of project-level server 'my_server'">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
       <paths name="root@121.37.16.215:22">
         <serverdata>
           <mappings>
-            <mapping deploy="/root/workplace/spider/zhaopin_spider" local="$PROJECT_DIR$" />
+            <mapping deploy="/root/workplace/scrapy_spider/zhaopin_spider" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

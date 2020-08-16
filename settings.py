@@ -14,12 +14,24 @@ BOT_NAME = 'zhaopin_spider'
 SPIDER_MODULES = ['zhaopin_spider.spiders']
 NEWSPIDER_MODULE = 'zhaopin_spider.spiders'
 
+# REDIRECT_ENABLED = False
+
 # 数据库配置信息
 MYSQL_HOST = '127.0.0.1'
 MYSQL_DBNAME = 'zhaopin'
 MYSQL_USER = 'dormz'
 MYSQL_PASSWD = 'dormz'
 MYSQL_PORT = 3306
+
+# PROXIES = [
+#     'http://219.154.152.141:8118',
+#     'http://123.117.34.223:9000',
+#     'http://117.70.197.63:61234',
+#     'http://115.223.7.110:80',
+#     'http://61.135.186.243:80',
+# ]
+
+DOWNLOAD_TIMEOUT = 5
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'zhaopin_spider (+http://www.yourdomain.com)'
@@ -28,7 +40,7 @@ MYSQL_PORT = 3306
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+# CONCURRENT_REQUESTS = 1
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -39,7 +51,7 @@ ROBOTSTXT_OBEY = False
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+# COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -58,10 +70,14 @@ ROBOTSTXT_OBEY = False
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    'zhaopin_spider.middlewares.ZhaopinSpiderDownloaderMiddleware': 543,
-#}
-
+DOWNLOADER_MIDDLEWARES = {
+    'zhaopin_spider.middlewares.ProxyMiddleware': 199,
+    'zhaopin_spider.middlewares.ZhaopinSpiderRetryMiddleware': 220,
+    # 'zhaopin_spider.middlewares.ZhaopinSpiderDownloaderMiddleware': 210,
+    # 'LagouSpider.middlewares.ProcessAllExceptionMiddleware': 120,
+}
+RETRY_TIMES = 50
+HTTPERROR_ALLOWED_CODES = [302]
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 #EXTENSIONS = {
@@ -71,8 +87,8 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'zhaopin_spider.pipelines.ZhaopinSpiderPipeline': 300,
-   # 'zhaopin_spider.pipelines.ZhaopinSpiderPipeline': 300,
+    'zhaopin_spider.pipelines.ZhaopinSpiderPipeline': 300,
+    # 'zhaopin_spider.pipelines.ZhaopinSpiderPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
